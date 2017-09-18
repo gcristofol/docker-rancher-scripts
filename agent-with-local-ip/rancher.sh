@@ -16,11 +16,13 @@ fi
 # Variable Setup
 echo "# Setting Variables"
 HOST_URL=$1
+HOST_LABELS="public=true&stack.workers=true&stack.api.public=true"
 AGENT_VERSION="v1.2.5"
 LOCAL_IP=`ifconfig eth0 | awk '/inet addr/{print substr($2,6)}'`
 STATUS=255
 SLEEP=5
 echo "### Server   = $HOST_URL"
+echo "### Labels   = $HOST_LABELS"
 echo "### Version  = $AGENT_VERSION"
 echo "### Agent IP = $LOCAL_IP"
 
@@ -31,7 +33,7 @@ echo "# Installing Rancher Agent"
 while [ $STATUS -gt 0 ]
 do
   sleep $SLEEP
-  OUTPUT=`sudo docker run -e "CATTLE_AGENT_IP=$LOCAL_IP" -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:$AGENT_VERSION $HOST_URL 2>&1`
+  OUTPUT=`sudo docker run -e "CATTLE_HOST_LABELS=$HOST_LABELS" -e "CATTLE_AGENT_IP=$LOCAL_IP" -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:$AGENT_VERSION $HOST_URL 2>&1`
   STATUS=$?
   echo $OUTPUT
 done
